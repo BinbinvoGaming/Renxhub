@@ -2321,23 +2321,6 @@ Combat:AddButton("Respawn",function()
         end)
     end)
     
-    Combat:AddToggle("Auto Farm Bounty New",_G.AutoFarmBounty_Hop,function(value)
-        _G.AutoFarmBounty_Hop = value
-    end)
-    
-    spawn(function()
-        while wait() do
-            if _G.AutoFarmBounty then
-                if _G.AutoFarmBounty_Hop then
-                    pcall(function()
-                        wait(120)
-                        loadstring(game:HttpGet('https://raw.githubusercontent.com/BinbinvoGaming/DeletedUserCode/main/SuperNgon/AutoBounty/Loader')()
-                    end)
-                end
-            end
-        end
-    end)
-    
     Combat:AddSeperator("Misc Bounty")
     
     Combat:AddButton("Next Player",function()
