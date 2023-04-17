@@ -2094,13 +2094,146 @@ if game.PlaceId == 2753915549 or game.PlaceId == 4442272183 or game.PlaceId == 7
     local Combat = RenUi:AddTab("Combat","7251993295")
     local Misc = RenUi:AddTab("Misc","6034509993")
     --------------------------------------------------------------------
+    Combat:AddSeperator("Settings")
+    
 Combat:AddButton("Respawn",function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam","Pirates") 
         wait()
     end)
     
-    Combat:AddSeperator("Bounty")
     
+    Combat:AddToggle("Spectate Player",false,function(value)
+        SpectatePlys = value
+        local plr1 = game:GetService("Players").LocalPlayer.Character.Humanoid
+        local plr2 = game:GetService("Players"):FindFirstChild(_G.SelectPly)
+        repeat wait(.1)
+            game:GetService("Workspace").Camera.CameraSubject = game:GetService("Players"):FindFirstChild(_G.SelectPly).Character.Humanoid
+        until SpectatePlys == false 
+        game:GetService("Workspace").Camera.CameraSubject = game:GetService("Players").LocalPlayer.Character.Humanoid
+    end)
+    
+    Combat:AddButton("Refresh Player",function()
+        Playerslist = {}
+        SelectedPly:Clear()
+        for i,v in pairs(game:GetService("Players"):GetChildren()) do  
+            SelectedPly:Add(v.Name)
+        end
+    end)
+    
+    Combat:AddToggle("Auto Farm Player",false,function(value)
+        _G.Auto_Kill_Ply = value
+        StopTween(_G.Auto_Kill_Ply)
+    end)
+    
+    spawn(function()
+        while wait() do
+            if _G.Auto_Kill_Ply then
+                pcall(function()
+                    if _G.SelectPly ~= nil then 
+                        if game.Players:FindFirstChild(_G.SelectPly) then
+                            if game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health > 0 then
+                                repeat task.wait()
+                                    EquipWeapon(_G.SelectWeapon)
+                                    AutoHaki()
+                                    game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CanCollide = false
+                                    topos(game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CFrame * CFrame.new(0,35,0))
+                                    spawn(function()
+                                        pcall(function()
+                                            if _G.SelectWeapon == SelectWeaponGun then
+                                                local args = {
+                                                    [1] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.Position,
+                                                    [2] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart
+                                                }
+                                                game:GetService("Players").LocalPlayer.Character[SelectWeaponGun].RemoteFunctionShoot:InvokeServer(unpack(args))
+                                            else
+                                                game:GetService("VirtualUser"):CaptureController()
+                                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                                            end
+                                        end)
+                                    end)
+                                until game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health <= 0 or not game.Players:FindFirstChild(_G.SelectPly) or not _G.Auto_Kill_Ply
+                            end
+                        end
+                    end
+                end)
+            end
+        end
+    end)
+    
+   Combat:AddToggle("Aimbot Gun",false,function(value)
+        _G.Aimbot_Gun = value
+    end)
+    
+    spawn(function()
+        while task.wait() do
+            if _G.Aimbot_Gun and game:GetService("Players").LocalPlayer.Character:FindFirstChild(SelectWeaponGun) then
+                pcall(function()
+                    game:GetService("Players").LocalPlayer.Character[SelectWeaponGun].Cooldown.Value = 0
+                    local args = {
+                        [1] = game:GetService("Players"):FindFirstChild(PlayerSelectAimbot).Character.HumanoidRootPart.Position,
+                        [2] = game:GetService("Players"):FindFirstChild(PlayerSelectAimbot).Character.HumanoidRootPart
+                    }
+                    game:GetService("Players").LocalPlayer.Character[SelectWeaponGun].RemoteFunctionShoot:InvokeServer(unpack(args))
+                    game:GetService'VirtualUser':CaptureController()
+                    game:GetService'VirtualUser':Button1Down(Vector2.new(1280, 672))
+                end)
+            end
+        end
+    end)
+    
+   Combat:AddToggle("Aimbot Skill",false,function(value)
+        _G.Aimbot_Skill = value
+    end)
+    
+    spawn(function()
+        pcall(function()
+            while task.wait() do
+                if _G.Aimbot_Skill and PlayerSelectAimbot ~= nil and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") and game.Players.LocalPlayer.Character[game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name]:FindFirstChild("MousePos") then
+                    local args = {
+                        [1] = game:GetService("Players"):FindFirstChild(PlayerSelectAimbot).Character.HumanoidRootPart.Position
+                    }
+                    
+                    game:GetService("Players").LocalPlayer.Character:FindFirstChild(game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name).RemoteEvent:FireServer(unpack(args))
+                end
+            end
+        end)
+    end)
+    
+    Combat:AddSeperator("PvP")
+    
+    Combat:AddToggle("Enabled PvP",false,function(value)
+        _G.EnabledPvP = value
+    end)
+    
+    spawn(function()
+        pcall(function()
+            while wait(.1) do
+                if _G.EnabledPvP then
+                    if game:GetService("Players").LocalPlayer.PlayerGui.Main.PvpDisabled.Visible == true then
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EnablePvp")
+                    end
+                end
+            end
+        end)
+    end)
+    
+    Combat:AddToggle("Safe Mode",false,function(value)
+        _G.Safe_Mode = value
+        StopTween(_G.Safe_Mode)
+    end)
+    
+    spawn(function()
+        pcall(function()
+            while wait() do
+                if _G.Safe_Mode then
+                    game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
+                end
+            end
+        end)
+    end)
+    
+    Combat:AddSeperator("Auto Bounty")
+
     local Current = Combat:AddLabel("Current Bounties :")
     
     local Bounty = tostring(game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value)
@@ -2110,7 +2243,7 @@ Combat:AddButton("Respawn",function()
         while wait() do
             pcall(function()
                 if len(Bounty) == 4 then
-                    Bounty1 = sub(Bounty,1,1).."."..sub(Bounty,2,3).."K"
+                        Bounty1 = sub(Bounty,1,1).."."..sub(Bounty,2,3).."K"
                 elseif len(Bounty) == 5 then
                     Bounty1 = sub(Bounty,1,2).."."..sub(Bounty,3,4).."K"
                 elseif len(Bounty) == 6 then
@@ -2321,12 +2454,39 @@ Combat:AddButton("Respawn",function()
         end)
     end)
     
+    Combat:AddToggle("Auto Farm Bounty Hop",_G.AutoFarmBounty_Hop,function(value)
+        _G.AutoFarmBounty_Hop = value
+    end)
+    
+    spawn(function()
+        while wait() do
+            if _G.AutoFarmBounty then
+                if _G.AutoFarmBounty_Hop then
+                    pcall(function()
+                        wait(120)
+                        Hop()
+                    end)
+                end
+            end
+        end
+    end)
+    
     Combat:AddSeperator("Misc Bounty")
     
     Combat:AddButton("Next Player",function()
         NextplySelect = true
         wait(.1)
         NextplySelect = false
+    end)
+    
+    Combat:AddToggle("Teleport",false,function(value)
+        _G.TeleportPly = value
+        pcall(function()
+            if _G.TeleportPly then
+                repeat topos(game:GetService("Players")[_G.SelectPly].Character.HumanoidRootPart.CFrame) wait() until _G.TeleportPly == false
+            end
+            StopTween(_G.TeleportPly)
+        end)
     end)
     
     Combat:AddSlider("Lock Bounty",1,25000000,750000,function(value)
