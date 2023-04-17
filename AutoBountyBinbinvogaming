@@ -2101,15 +2101,14 @@ Combat:AddButton("Respawn",function()
         wait()
     end)
     
+    Playerslist = {}
     
-    Combat:AddToggle("Spectate Player",false,function(value)
-        SpectatePlys = value
-        local plr1 = game:GetService("Players").LocalPlayer.Character.Humanoid
-        local plr2 = game:GetService("Players"):FindFirstChild(_G.SelectPly)
-        repeat wait(.1)
-            game:GetService("Workspace").Camera.CameraSubject = game:GetService("Players"):FindFirstChild(_G.SelectPly).Character.Humanoid
-        until SpectatePlys == false 
-        game:GetService("Workspace").Camera.CameraSubject = game:GetService("Players").LocalPlayer.Character.Humanoid
+    for i,v in pairs(game:GetService("Players"):GetChildren()) do
+        table.insert(Playerslist,v.Name)
+    end
+    
+    local SelectedPly = Combat:AddDropdown("Select Players",Playerslist,function(value)
+        _G.SelectPly = value
     end)
     
     Combat:AddButton("Refresh Player",function()
@@ -2117,46 +2116,6 @@ Combat:AddButton("Respawn",function()
         SelectedPly:Clear()
         for i,v in pairs(game:GetService("Players"):GetChildren()) do  
             SelectedPly:Add(v.Name)
-        end
-    end)
-    
-    Combat:AddToggle("Auto Farm Player",false,function(value)
-        _G.Auto_Kill_Ply = value
-        StopTween(_G.Auto_Kill_Ply)
-    end)
-    
-    spawn(function()
-        while wait() do
-            if _G.Auto_Kill_Ply then
-                pcall(function()
-                    if _G.SelectPly ~= nil then 
-                        if game.Players:FindFirstChild(_G.SelectPly) then
-                            if game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health > 0 then
-                                repeat task.wait()
-                                    EquipWeapon(_G.SelectWeapon)
-                                    AutoHaki()
-                                    game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CanCollide = false
-                                    topos(game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CFrame * CFrame.new(0,35,0))
-                                    spawn(function()
-                                        pcall(function()
-                                            if _G.SelectWeapon == SelectWeaponGun then
-                                                local args = {
-                                                    [1] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.Position,
-                                                    [2] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart
-                                                }
-                                                game:GetService("Players").LocalPlayer.Character[SelectWeaponGun].RemoteFunctionShoot:InvokeServer(unpack(args))
-                                            else
-                                                game:GetService("VirtualUser"):CaptureController()
-                                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
-                                            end
-                                        end)
-                                    end)
-                                until game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health <= 0 or not game.Players:FindFirstChild(_G.SelectPly) or not _G.Auto_Kill_Ply
-                            end
-                        end
-                    end
-                end)
-            end
         end
     end)
     
@@ -2288,6 +2247,46 @@ Combat:AddButton("Respawn",function()
                 end
                 Earn:Set("Earned : "..tonumber(Earned1))
             end)
+        end
+    end)
+    
+    Combat:AddToggle("Auto Farm Player",false,function(value)
+        _G.Auto_Kill_Ply = value
+        StopTween(_G.Auto_Kill_Ply)
+    end)
+    
+    spawn(function()
+        while wait() do
+            if _G.Auto_Kill_Ply then
+                pcall(function()
+                    if _G.SelectPly ~= nil then 
+                        if game.Players:FindFirstChild(_G.SelectPly) then
+                            if game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health > 0 then
+                                repeat task.wait()
+                                    EquipWeapon(_G.SelectWeapon)
+                                    AutoHaki()
+                                    game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CanCollide = false
+                                    topos(game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.CFrame * CFrame.new(0,35,0))
+                                    spawn(function()
+                                        pcall(function()
+                                            if _G.SelectWeapon == SelectWeaponGun then
+                                                local args = {
+                                                    [1] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart.Position,
+                                                    [2] = game.Players:FindFirstChild(_G.SelectPly).Character.HumanoidRootPart
+                                                }
+                                                game:GetService("Players").LocalPlayer.Character[SelectWeaponGun].RemoteFunctionShoot:InvokeServer(unpack(args))
+                                            else
+                                                game:GetService("VirtualUser"):CaptureController()
+                                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                                            end
+                                        end)
+                                    end)
+                                until game.Players:FindFirstChild(_G.SelectPly).Character.Humanoid.Health <= 0 or not game.Players:FindFirstChild(_G.SelectPly) or not _G.Auto_Kill_Ply
+                            end
+                        end
+                    end
+                end)
+            end
         end
     end)
     
